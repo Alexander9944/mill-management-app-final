@@ -1,0 +1,40 @@
+import axios from 'axios';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+const api = axios.create({
+    baseURL: API_URL,
+});
+
+// Add token to every request
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+        config.headers['x-auth-token'] = token;
+    }
+    return config;
+});
+
+// Auth APIs
+export const auth = {
+    register: (username, password) =>
+        api.post('/auth/register', { username, password }),
+    login: (username, password) =>
+        api.post('/auth/login', { username, password }),
+    getCurrentUser: () =>
+        api.get('/auth/me'),
+};
+
+// Stock APIs
+export const stock = {
+    getAll: () =>
+        api.get('/stock'),
+    create: (name, unit, notes) =>
+        api.post('/stock', { name, unit, notes }),
+    update: (stockId, type, quantity, remarks) =>
+        api.post('/stock/transaction', { stockId, type, quantity, remarks }),
+    getHistory: (stockId = null) =>
+        api.get(`/stock/history${stockId ? `?stockId=${stockId}` : ''}`),
+};
+
+export default api;
