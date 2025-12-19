@@ -50,6 +50,29 @@ exports.deleteTransaction = async (req, res) => {
     }
 };
 
+// Update a transaction
+exports.updateTransaction = async (req, res) => {
+    const { type, category, quantity, pricePerUnit, amount, remarks, date } = req.body;
+    try {
+        let transaction = await AccountTransaction.findById(req.params.id);
+        if (!transaction) return res.status(404).json({ msg: 'Transaction not found' });
+
+        transaction.type = type || transaction.type;
+        transaction.category = category || transaction.category;
+        transaction.quantity = quantity !== undefined ? quantity : transaction.quantity;
+        transaction.pricePerUnit = pricePerUnit !== undefined ? pricePerUnit : transaction.pricePerUnit;
+        transaction.amount = amount !== undefined ? amount : transaction.amount;
+        transaction.remarks = remarks !== undefined ? remarks : transaction.remarks;
+        transaction.date = date || transaction.date;
+
+        await transaction.save();
+        res.json(transaction);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+};
+
 // Get Summary
 exports.getSummary = async (req, res) => {
     try {

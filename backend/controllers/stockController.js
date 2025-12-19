@@ -88,3 +88,65 @@ exports.getHistory = async (req, res) => {
         res.status(500).send('Server error');
     }
 };
+// Edit a stock transaction
+exports.editTransaction = async (req, res) => {
+    const { quantity, remarks } = req.body;
+    try {
+        const transaction = await StockTransaction.findById(req.params.id);
+        if (!transaction) return res.status(404).json({ msg: 'Transaction not found' });
+
+        const stock = await Stock.findById(transaction.stockId);
+        if (!stock) return res.status(404).json({ msg: 'Linked stock not found' });
+
+        const oldQty = transaction.quantity;
+        const newQty = Number(quantity);
+        const diff = newQty - oldQty;
+
+        // Revert old and apply new:
+        // If 'add': stock = stock - old + new => stock + (new - old) => stock + diff
+        // If 'remove': stock = stock + old - new => stock - (new - old) => stock - diff
+        if (transaction.type === 'add') {
+            stock.quantity += diff;
+        } else {
+            if (stock.quantity < diff) return res.status(400).json({ msg: 'Insufficient stock for this adjustment' });
+            stock.quantity -= diff;
+        }
+
+        transaction.quantity = newQty;
+        transaction.remarks = remarks !== undefined ? remarks : transaction.remarks;
+        stock.lastUpdated = Date.now();
+
+        await stock.save();
+        await transaction.save();
+
+        res.json({ stock, transaction });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+};
+
+// Delete a stock transaction
+exports.deleteTransaction = async (req, res) => {
+    try {
+        const transaction = await StockTransaction.findById(req.params.id);
+        if (!transaction) return res.status(404).json({ msg: 'Transaction not found' });
+
+        const stock = await Stock.findById(transaction.stockId);
+        if (stock) {
+            // Revert the stock change
+            if (transaction.type === 'add') {
+                stock.quantity -= transaction.quantity;
+            } else {
+                stock.quantity += transaction.quantity;
+            }
+            await stock.save();
+        }
+
+        await transaction.deleteOne();
+        res.json({ msg: 'Transaction deleted and stock reverted' });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+};

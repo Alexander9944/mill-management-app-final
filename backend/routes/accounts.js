@@ -7,5 +7,6 @@ router.get('/', auth, accountController.getTransactions);
 router.post('/', auth, accountController.createTransaction);
 router.get('/summary', auth, accountController.getSummary);
 router.delete('/:id', auth, accountController.deleteTransaction);
+router.put('/:id', auth, accountController.updateTransaction);
 
 module.exports = router;
