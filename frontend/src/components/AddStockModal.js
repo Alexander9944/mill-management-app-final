@@ -1,14 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-export default function AddStockModal({ stock, onClose, onSubmit }) {
-    const [quantity, setQuantity] = useState('');
-    const [remarks, setRemarks] = useState('');
+export default function AddStockModal({ stock, onClose, onSubmit, isEdit = false }) {
+    const [quantity, setQuantity] = useState(isEdit ? stock.quantity.toString() : '');
+    const [remarks, setRemarks] = useState(isEdit ? stock.remarks : '');
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSubmit(stock._id, quantity, remarks, stock.type);
+        onSubmit(stock.stockId?._id || stock._id, quantity, remarks, stock.type, isEdit ? stock._id : null);
     };
 
     return (
@@ -16,15 +16,21 @@ export default function AddStockModal({ stock, onClose, onSubmit }) {
             <div className="glass rounded-2xl shadow-2xl w-full max-w-[340px] overflow-hidden border border-border-color">
                 <div className={`p-4 text-white flex justify-between items-center border-b border-white/10 bg-gradient-to-r ${stock.type === 'add' ? 'from-emerald-600/30 to-teal-600/20' : 'from-red-600/30 to-orange-600/20'}`}>
                     <div>
-                        <h2 className="text-xl font-black tracking-tight">{stock.type === 'add' ? 'Restock' : 'Dispatch'}</h2>
-                        <p className="text-[9px] font-bold opacity-70 uppercase tracking-widest">{stock.name}</p>
+                        <h2 className="text-xl font-black tracking-tight">
+                            {isEdit ? 'Adjust Entry' : (stock.type === 'add' ? 'Restock' : 'Dispatch')}
+                        </h2>
+                        <p className="text-[9px] font-bold opacity-70 uppercase tracking-widest">
+                            {stock.stockId?.name || stock.name}
+                        </p>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-all text-xl font-light">&times;</button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-4">
                     <div>
-                        <label className="block text-[9px] font-black text-text-secondary uppercase tracking-widest mb-1.5 ml-1">Volume ({stock.unit})</label>
+                        <label className="block text-[9px] font-black text-text-secondary uppercase tracking-widest mb-1.5 ml-1">
+                            Volume ({stock.stockId?.unit || stock.unit})
+                        </label>
                         <input
                             type="number"
                             value={quantity}
@@ -41,7 +47,7 @@ export default function AddStockModal({ stock, onClose, onSubmit }) {
                         <textarea
                             value={remarks}
                             onChange={(e) => setRemarks(e.target.value)}
-                            className="w-full bg-input-bg border border-border-color rounded-xl px-4 py-2 text-input-text text-sm focus:ring-1 focus:ring-violet-500 outline-none transition-all h-16 resize-none"
+                            className="w-full bg-input-bg border border-border-color rounded-xl px-4 py-2 text-input-text text-[11px] focus:ring-1 focus:ring-violet-500 outline-none transition-all h-16 resize-none"
                             placeholder="Optional..."
                         />
                     </div>
@@ -54,7 +60,7 @@ export default function AddStockModal({ stock, onClose, onSubmit }) {
                                     : 'bg-red-600 hover:bg-red-500'
                                 }`}
                         >
-                            Confirm {stock.type === 'add' ? 'Increment' : 'Decrement'}
+                            {isEdit ? 'Update Adjustment' : `Confirm ${stock.type === 'add' ? 'Increment' : 'Decrement'}`}
                         </button>
                     </div>
                 </form>

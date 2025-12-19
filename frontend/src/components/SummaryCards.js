@@ -10,25 +10,18 @@ export default function SummaryCards({ summary }) {
     };
 
     return (
-        <div className="flex gap-2 flex-wrap sm:flex-nowrap">
-            <div className="glass group overflow-hidden relative flex-1 min-w-[120px] p-3 rounded-xl border-t border-white/5 hover:border-emerald-500/30 transition-all shadow-sm">
-                <div className="absolute top-0 right-0 w-12 h-12 bg-emerald-500/10 blur-[20px] rounded-full group-hover:scale-150 transition-transform"></div>
-                <p className="text-[8px] font-black text-emerald-500 uppercase tracking-widest leading-none mb-2">Sales</p>
-                <p className="text-sm font-black text-text-primary tabular-nums">{formatCurrency(summary.credit)}</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full lg:w-auto">
+            <div className="glass p-6 rounded-2xl border-2 border-emerald-500/30 shadow-xl bg-gradient-to-br from-emerald-500/5 to-transparent">
+                <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-2">Total Income</p>
+                <p className="text-2xl font-black text-emerald-600 tabular-nums">{formatCurrency(summary.credit)}</p>
             </div>
-
-            <div className="glass group overflow-hidden relative flex-1 min-w-[120px] p-3 rounded-xl border-t border-white/5 hover:border-red-500/30 transition-all shadow-sm">
-                <div className="absolute top-0 right-0 w-12 h-12 bg-red-500/10 blur-[20px] rounded-full group-hover:scale-150 transition-transform"></div>
-                <p className="text-[8px] font-black text-red-500 uppercase tracking-widest leading-none mb-2">Debits</p>
-                <p className="text-sm font-black text-text-primary tabular-nums">{formatCurrency(summary.debit)}</p>
+            <div className="glass p-6 rounded-2xl border-2 border-red-500/30 shadow-xl bg-gradient-to-br from-red-500/5 to-transparent">
+                <p className="text-[10px] font-black text-red-600 uppercase tracking-widest mb-2">Total Expenses</p>
+                <p className="text-2xl font-black text-red-600 tabular-nums">{formatCurrency(summary.debit)}</p>
             </div>
-
-            <div className="glass group overflow-hidden relative flex-1 min-w-[140px] p-3 rounded-xl border-2 border-violet-500/20 bg-gradient-to-br from-violet-600/5 to-indigo-600/5 hover:border-violet-500/40 transition-all shadow-md">
-                <div className="absolute -top-6 -right-6 w-16 h-16 bg-violet-600/10 blur-[30px] rounded-full group-hover:scale-150 transition-transform"></div>
-                <p className="text-[8px] font-black text-violet-500 uppercase tracking-widest leading-none mb-2">Net Balance</p>
-                <p className={`text-lg font-black tabular-nums tracking-tighter ${summary.balance >= 0 ? 'text-text-primary' : 'text-orange-500'}`}>
-                    {formatCurrency(summary.balance)}
-                </p>
+            <div className="glass p-6 rounded-2xl border-2 border-violet-500/30 shadow-xl bg-gradient-to-br from-violet-500/5 to-transparent">
+                <p className="text-[10px] font-black text-violet-600 uppercase tracking-widest mb-2">Net Balance</p>
+                <p className="text-2xl font-black text-violet-600 tabular-nums">{formatCurrency(summary.balance)}</p>
             </div>
         </div>
     );

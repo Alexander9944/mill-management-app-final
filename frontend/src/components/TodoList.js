@@ -7,6 +7,7 @@ export default function TodoList() {
     const [taskList, setTaskList] = useState([]);
     const [newTask, setNewTask] = useState('');
     const [expectedDate, setExpectedDate] = useState('');
+    const [editingTodo, setEditingTodo] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -24,18 +25,29 @@ export default function TodoList() {
         }
     };
 
-    const handleAddTodo = async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!newTask || !expectedDate) return;
 
         try {
-            await todos.create(newTask, expectedDate);
+            if (editingTodo) {
+                await todos.update(editingTodo._id, { task: newTask, expectedCompletionDate: expectedDate });
+                setEditingTodo(null);
+            } else {
+                await todos.create(newTask, expectedDate);
+            }
             setNewTask('');
             setExpectedDate('');
             fetchTodos();
         } catch (err) {
-            alert('Failed to add task');
+            alert('Operation failed');
         }
+    };
+
+    const startEditing = (todo) => {
+        setEditingTodo(todo);
+        setNewTask(todo.task);
+        setExpectedDate(new Date(todo.expectedCompletionDate).toISOString().split('T')[0]);
     };
 
     const toggleComplete = async (todo) => {
@@ -58,77 +70,95 @@ export default function TodoList() {
     };
 
     return (
-        <div className="glass rounded-2xl p-4 h-full flex flex-col min-h-[400px]">
-            <h2 className="text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2 text-text-primary">
-                <span className="p-1.5 bg-indigo-500/10 rounded-lg text-indigo-500">📝</span>
-                Production Todos
+        <div className="glass rounded-[2rem] p-6 flex flex-col h-[800px] border-2 border-border-color shadow-2xl overflow-hidden w-full">
+            <h2 className="text-sm font-black uppercase tracking-[0.2em] mb-6 flex items-center justify-between text-text-primary">
+                <div className="flex items-center gap-2">
+                    <span className="p-2 bg-indigo-500/20 rounded-xl text-indigo-600 text-lg">📝</span>
+                    Production Queue
+                </div>
+                {editingTodo && (
+                    <button onClick={() => { setEditingTodo(null); setNewTask(''); setExpectedDate(''); }} className="text-[9px] font-black bg-red-500/20 text-red-600 px-3 py-1 rounded-lg uppercase border-2 border-red-500/30">Cancel</button>
+                )}
             </h2>
 
-            <form onSubmit={handleAddTodo} className="space-y-2 mb-4">
+            <form onSubmit={handleSubmit} className="space-y-4 mb-6 bg-white/5 p-5 rounded-2xl border-2 border-border-color">
+                <p className="text-[10px] font-black uppercase tracking-widest text-text-secondary ml-1">{editingTodo ? 'Modify Entry' : 'Manual Entry'}</p>
                 <input
                     type="text"
-                    placeholder="New Task..."
+                    placeholder="Describe mission..."
                     value={newTask}
                     onChange={(e) => setNewTask(e.target.value)}
-                    className="w-full bg-input-bg border border-border-color rounded-xl p-2 text-xs focus:ring-1 focus:ring-violet-500 outline-none transition-all text-input-text font-medium"
+                    className="w-full bg-input-bg border-2 border-border-color rounded-2xl p-3 text-base focus:ring-2 focus:ring-violet-500 outline-none transition-all text-input-text font-black"
                 />
-                <div className="flex gap-2">
+                <div className="flex flex-col gap-3">
                     <input
                         type="date"
                         value={expectedDate}
                         onChange={(e) => setExpectedDate(e.target.value)}
-                        className="flex-1 bg-input-bg border border-border-color rounded-xl p-2 text-xs focus:ring-1 focus:ring-violet-500 outline-none transition-all text-input-text"
+                        className="w-full bg-input-bg border-2 border-border-color rounded-2xl p-3 text-base focus:ring-2 focus:ring-violet-500 outline-none transition-all text-input-text font-black"
                     />
                     <button
                         type="submit"
-                        className="px-4 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 rounded-xl font-bold text-[10px] uppercase text-white hover:scale-105 active:scale-95 transition-all shadow-md"
+                        className={`w-full py-4 rounded-2xl font-black text-xs uppercase text-white hover:scale-105 active:scale-95 transition-all shadow-xl ${editingTodo ? 'bg-amber-600' : 'bg-gradient-to-r from-violet-600 to-indigo-600'}`}
                     >
-                        Add
+                        {editingTodo ? 'Update Mission' : 'Commit Mission'}
                     </button>
                 </div>
             </form>
 
-            <div className="flex-1 overflow-y-auto space-y-2 pr-1 scrollbar-thin">
+            <div className="flex-1 overflow-y-auto space-y-4 pr-1 scrollbar-thin">
                 {loading ? (
-                    <div className="text-center py-4 text-text-secondary text-[10px]">Syncing...</div>
+                    <div className="text-center py-10 text-text-secondary text-xs font-black uppercase tracking-widest animate-pulse">Scanning Queue...</div>
                 ) : taskList.length === 0 ? (
-                    <div className="text-center py-4 text-text-secondary text-[10px] italic opacity-50">Zero Tasks ✨</div>
+                    <div className="text-center py-20 text-text-secondary text-xs italic font-black opacity-40 uppercase tracking-[0.2em]">Zero Missions Scheduled</div>
                 ) : (
                     taskList.map((task) => (
                         <div
                             key={task._id}
-                            className={`group p-2.5 rounded-xl border transition-all duration-200 flex items-center justify-between ${task.completed
-                                    ? 'bg-emerald-500/5 border-emerald-500/10 opacity-50'
-                                    : 'bg-white/5 border-border-color hover:border-violet-500/30'
-                                }`}
+                            className={`group p-4 rounded-2xl border-2 transition-all duration-300 flex flex-col gap-4 ${task.completed
+                                    ? 'bg-emerald-500/10 border-emerald-500/20 opacity-60'
+                                    : 'bg-white/5 border-border-color hover:border-violet-500/50'
+                                } ${editingTodo?._id === task._id ? 'ring-2 ring-amber-500' : ''}`}
                         >
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-start gap-3">
                                 <button
                                     onClick={() => toggleComplete(task)}
-                                    className={`w-4 h-4 rounded flex items-center justify-center transition-all ${task.completed ? 'bg-emerald-500' : 'border border-border-color hover:border-violet-500'
+                                    className={`w-6 h-6 rounded-lg flex-shrink-0 flex items-center justify-center transition-all border-2 mt-1 ${task.completed ? 'bg-emerald-600 border-emerald-600' : 'border-border-color hover:border-violet-500'
                                         }`}
                                 >
                                     {task.completed && (
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-2.5 w-2.5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-white" viewBox="0 0 20 20" fill="currentColor">
                                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                         </svg>
                                     )}
                                 </button>
-                                <div>
-                                    <p className={`text-[11px] font-bold tracking-tight ${task.completed ? 'line-through text-text-secondary' : 'text-text-primary'}`}>
+                                <div className="flex-1 min-w-0">
+                                    <p className={`text-base font-black tracking-tight break-words ${task.completed ? 'line-through text-text-secondary' : 'text-text-primary'}`}>
                                         {task.task}
                                     </p>
-                                    <p className="text-[8px] text-text-secondary italic uppercase tracking-wider font-bold">
-                                        Due: {new Date(task.expectedCompletionDate).toLocaleDateString()}
+                                    <p className="text-[10px] text-text-secondary italic uppercase tracking-widest font-black mt-1">
+                                        Deadline: {new Date(task.expectedCompletionDate).toLocaleDateString()}
                                     </p>
                                 </div>
                             </div>
-                            <button
-                                onClick={() => deleteTodo(task._id)}
-                                className="opacity-0 group-hover:opacity-100 p-1 text-red-500/40 hover:text-red-500 transition-all font-bold text-lg"
-                            >
-                                &times;
-                            </button>
+                            <div className="flex items-center gap-3 pt-2 border-t border-white/5">
+                                <button
+                                    onClick={() => startEditing(task)}
+                                    className="flex-1 flex items-center justify-center gap-2 py-2 text-amber-500 hover:bg-amber-500/20 rounded-xl transition-all border-2 border-amber-500/20 shadow-md"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                    </svg>
+                                    <span className="text-[9px] font-black uppercase">Edit</span>
+                                </button>
+                                <button
+                                    onClick={() => deleteTodo(task._id)}
+                                    className="flex-1 flex items-center justify-center gap-2 py-2 text-red-500 hover:bg-red-500/20 rounded-xl transition-all border-2 border-red-500/20 shadow-md"
+                                >
+                                    <span className="text-xl leading-none">&times;</span>
+                                    <span className="text-[9px] font-black uppercase">Delete</span>
+                                </button>
+                            </div>
                         </div>
                     ))
                 )}

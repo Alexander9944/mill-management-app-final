@@ -35,6 +35,10 @@ export const stock = {
         api.post('/stock/transaction', { stockId, type, quantity, remarks }),
     getHistory: (stockId = null) =>
         api.get(`/stock/history${stockId ? `?stockId=${stockId}` : ''}`),
+    updateTransaction: (id, quantity, remarks) =>
+        api.put(`/stock/transaction/${id}`, { quantity, remarks }),
+    deleteTransaction: (id) =>
+        api.delete(`/stock/transaction/${id}`),
 };
 
 // Account APIs
@@ -47,6 +51,8 @@ export const accounts = {
         api.get('/accounts/summary'),
     delete: (id) =>
         api.delete(`/accounts/${id}`),
+    update: (id, data) =>
+        api.put(`/accounts/${id}`, data),
 };
 
 // Todo APIs

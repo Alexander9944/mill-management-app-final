@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from 'react';
 
-export default function AddTransactionModal({ type, categories, onClose, onSubmit }) {
+export default function AddTransactionModal({ type, categories, onClose, onSubmit, initialData }) {
     const [formData, setFormData] = useState({
-        category: categories[0],
-        quantity: '',
-        pricePerUnit: '',
-        amount: '',
-        remarks: '',
-        date: new Date().toISOString().split('T')[0]
+        category: initialData?.category || categories[0],
+        quantity: initialData?.quantity?.toString() || '',
+        pricePerUnit: initialData?.pricePerUnit?.toString() || '',
+        amount: initialData?.amount?.toString() || '',
+        remarks: initialData?.remarks || '',
+        date: initialData?.date ? new Date(initialData.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
     });
 
     useEffect(() => {
@@ -34,7 +34,7 @@ export default function AddTransactionModal({ type, categories, onClose, onSubmi
             quantity: formData.quantity ? Number(formData.quantity) : null,
             pricePerUnit: formData.pricePerUnit ? Number(formData.pricePerUnit) : null,
             amount: Number(formData.amount)
-        });
+        }, initialData?._id);
     };
 
     return (
@@ -42,8 +42,8 @@ export default function AddTransactionModal({ type, categories, onClose, onSubmi
             <div className="glass rounded-2xl shadow-2xl w-full max-w-[360px] overflow-hidden border border-border-color">
                 <div className={`p-4 text-white flex justify-between items-center border-b border-white/10 bg-gradient-to-r ${type === 'credit' ? 'from-emerald-600/30 to-teal-600/20' : 'from-red-600/30 to-orange-600/20'}`}>
                     <div>
-                        <h2 className="text-xl font-black tracking-tight">{type === 'credit' ? 'Income' : 'Expense'}</h2>
-                        <p className="text-[9px] font-bold opacity-70 uppercase tracking-widest">Authorized Entry</p>
+                        <h2 className="text-xl font-black tracking-tight">{initialData ? 'Update' : (type === 'credit' ? 'Income' : 'Expense')}</h2>
+                        <p className="text-[9px] font-bold opacity-70 uppercase tracking-widest">{initialData ? 'Adjusting Ledger' : 'Authorized Entry'}</p>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-all text-xl font-light">&times;</button>
                 </div>
@@ -118,6 +118,17 @@ export default function AddTransactionModal({ type, categories, onClose, onSubmi
                         />
                     </div>
 
+                    <div>
+                        <label className="block text-[8px] font-black text-text-secondary uppercase tracking-widest mb-1 ml-1">Notes</label>
+                        <textarea
+                            name="remarks"
+                            value={formData.remarks}
+                            onChange={handleChange}
+                            className="w-full bg-input-bg border border-border-color rounded-xl px-4 py-2 text-input-text text-[11px] focus:ring-1 focus:ring-violet-500 outline-none transition-all h-16 resize-none"
+                            placeholder="Narration..."
+                        />
+                    </div>
+
                     <div className="pt-2">
                         <button
                             type="submit"
@@ -126,7 +137,7 @@ export default function AddTransactionModal({ type, categories, onClose, onSubmi
                                     : 'bg-red-600 hover:bg-red-500'
                                 }`}
                         >
-                            Log {type === 'credit' ? 'Sale' : 'Expense'}
+                            {initialData ? 'Confirm Changes' : `Log ${type === 'credit' ? 'Sale' : 'Expense'}`}
                         </button>
                     </div>
                 </form>

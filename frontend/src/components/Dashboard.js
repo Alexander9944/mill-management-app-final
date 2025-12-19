@@ -13,6 +13,7 @@ export default function Dashboard() {
     const [loading, setLoading] = useState(true);
     const [showAddModal, setShowAddModal] = useState(false);
     const [selectedStock, setSelectedStock] = useState(null);
+    const [isEditMode, setIsEditMode] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(0);
 
     useEffect(() => {
@@ -40,111 +41,119 @@ export default function Dashboard() {
         }
     };
 
-    const handleAddStock = async (stockId, quantity, remarks, type) => {
+    const handleStockSubmit = async (stockId, quantity, remarks, type, transactionId = null) => {
         try {
-            await stock.update(stockId, type, quantity, remarks);
+            if (transactionId) {
+                await stock.updateTransaction(transactionId, quantity, remarks);
+            } else {
+                await stock.update(stockId, type, quantity, remarks);
+            }
             setRefreshTrigger(prev => prev + 1);
             setShowAddModal(false);
             setSelectedStock(null);
+            setIsEditMode(false);
         } catch (err) {
-            alert(err.response?.data?.msg || 'Failed to update stock');
+            alert(err.response?.data?.msg || 'Operation failed');
+        }
+    };
+
+    const handleHistoryEdit = (item) => {
+        setSelectedStock(item);
+        setIsEditMode(true);
+        setShowAddModal(true);
+    };
+
+    const handleHistoryDelete = async (id) => {
+        if (!confirm('Revert this transaction and adjust stock?')) return;
+        try {
+            await stock.deleteTransaction(id);
+            setRefreshTrigger(prev => prev + 1);
+        } catch (err) {
+            alert('Failed to delete transaction');
         }
     };
 
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center h-[60vh]">
-                <div className="w-10 h-10 border-2 border-violet-500/20 border-t-violet-500 rounded-full animate-spin mb-3"></div>
-                <div className="text-[10px] font-black text-text-secondary animate-pulse tracking-widest uppercase">Syncing...</div>
+                <div className="w-16 h-16 border-4 border-violet-500/20 border-t-violet-500 rounded-full animate-spin mb-6"></div>
+                <div className="text-sm font-black text-text-secondary animate-pulse tracking-widest uppercase">System Initialization...</div>
             </div>
         );
     }
 
     return (
-        <div className="max-w-7xl mx-auto px-4 py-4 min-h-[calc(100vh-60px)]">
+        <div className="max-w-7xl mx-auto px-6 py-8 min-h-[calc(100vh-60px)]">
             <NotificationBanner />
 
-            {/* Header Section */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 animate-fade-in px-1">
+            {/* Header Section Area Area */}
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-12 animate-fade-in px-2">
                 <div>
-                    <h1 className="text-2xl font-black text-text-primary tracking-tight">
+                    <h1 className="text-4xl font-black text-text-primary tracking-tight mb-2">
                         Inventory <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-pink-500">Analytics</span>
                     </h1>
-                    <p className="text-[10px] text-text-secondary font-medium">Real-time monitoring of Oil Mill operations.</p>
+                    <p className="text-sm text-text-secondary font-black tracking-widest uppercase opacity-80">Real-time Command Center</p>
                 </div>
-                <div className="flex gap-2 w-full sm:w-auto">
+                <div className="flex gap-4 w-full sm:w-auto">
                     <button
                         onClick={() => window.location.href = '/dashboard/accounts'}
-                        className="flex-1 sm:flex-none glass border-violet-500/20 text-violet-500 hover:bg-violet-500/10 px-4 py-2 rounded-xl font-bold text-[10px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95 shadow-md"
+                        className="flex-1 sm:flex-none glass border border-violet-500/30 text-violet-600 hover:bg-violet-500/10 px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 transition-all hover:scale-105 active:scale-95 shadow-2xl"
                     >
-                        <span>💰</span> Money Management
+                        <span>💰</span> Financial Vault
                     </button>
                 </div>
             </div>
 
-            {/* Initialize Button */}
-            {stocks.length === 0 && (
-                <div className="mb-8 glass p-6 rounded-2xl border border-blue-500/20 text-center animate-fade-in">
-                    <h3 className="text-sm font-bold text-text-primary mb-2">No Data</h3>
-                    <button
-                        onClick={async () => {
-                            const categories = [
-                                { name: 'White Oil', unit: 'Liters' },
-                                { name: 'Second Quality Oil', unit: 'Liters' },
-                                { name: 'Lamp Oil', unit: 'Liters' },
-                                { name: 'Punnaku', unit: 'Kg' },
-                                { name: 'Diesel', unit: 'Liters' },
-                            ];
-                            for (const cat of categories) {
-                                try { await stock.create(cat.name, cat.unit, `Initial ${cat.name} stock`); } catch (e) { }
-                            }
-                            setRefreshTrigger(prev => prev + 1);
-                        }}
-                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-xl text-xs transition-all"
-                    >
-                        Initialize Categories
-                    </button>
+            {/* Stock Cards Grid Area Area */}
+            <div className="mb-16">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {stocks.map((s, idx) => (
+                        <div key={s._id} style={{ animationDelay: `${idx * 50}ms` }} className="animate-fade-in">
+                            <StockCard
+                                stock={s}
+                                onAddClick={() => {
+                                    setSelectedStock({ ...s, type: 'add' });
+                                    setIsEditMode(false);
+                                    setShowAddModal(true);
+                                }}
+                                onRemoveClick={() => {
+                                    setSelectedStock({ ...s, type: 'remove' });
+                                    setIsEditMode(false);
+                                    setShowAddModal(true);
+                                }}
+                            />
+                        </div>
+                    ))}
                 </div>
-            )}
+            </div>
 
-            {/* Stock Cards Grid - Compact */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 mb-8">
-                {stocks.map((s, idx) => (
-                    <div key={s._id} style={{ animationDelay: `${idx * 50}ms` }} className="animate-fade-in">
-                        <StockCard
-                            stock={s}
-                            onAddClick={() => {
-                                setSelectedStock({ ...s, type: 'add' });
-                                setShowAddModal(true);
-                            }}
-                            onRemoveClick={() => {
-                                setSelectedStock({ ...s, type: 'remove' });
-                                setShowAddModal(true);
-                            }}
+            {/* History Section Area Area - Shrinked */}
+            <div className="animate-fade-in" style={{ animationDelay: '300ms' }}>
+                <div className="flex items-center gap-6 mb-8">
+                    <h2 className="text-xl font-black text-text-primary uppercase tracking-[0.2em] whitespace-nowrap">Movement Logs</h2>
+                    <div className="h-0.5 flex-1 bg-border-color opacity-30"></div>
+                </div>
+                <div className="glass rounded-3xl overflow-hidden shadow-2xl border border-border-color">
+                    <div className="h-[600px] overflow-y-auto scrollbar-thin">
+                        <StockHistoryTable
+                            history={history}
+                            onEdit={handleHistoryEdit}
+                            onDelete={handleHistoryDelete}
                         />
                     </div>
-                ))}
-            </div>
-
-            {/* History Section - Shrinked */}
-            <div className="animate-fade-in" style={{ animationDelay: '300ms' }}>
-                <div className="flex items-center gap-3 mb-3">
-                    <h2 className="text-sm font-black text-text-primary uppercase tracking-widest">Logs</h2>
-                    <div className="h-px flex-1 bg-border-color"></div>
-                </div>
-                <div className="glass rounded-2xl overflow-hidden shadow-lg border border-border-color">
-                    <StockHistoryTable history={history} />
                 </div>
             </div>
 
             {showAddModal && selectedStock && (
                 <AddStockModal
                     stock={selectedStock}
+                    isEdit={isEditMode}
                     onClose={() => {
                         setShowAddModal(false);
                         setSelectedStock(null);
+                        setIsEditMode(false);
                     }}
-                    onSubmit={handleAddStock}
+                    onSubmit={handleStockSubmit}
                 />
             )}
         </div>
