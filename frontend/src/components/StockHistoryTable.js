@@ -2,62 +2,51 @@
 
 export default function StockHistoryTable({ history }) {
     const formatDate = (dateString) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
+        return new Date(dateString).toLocaleString('en-GB', {
+            day: '2-digit',
             month: 'short',
-            day: 'numeric',
             hour: '2-digit',
-            minute: '2-digit',
+            minute: '2-digit'
         });
     };
 
-    if (history.length === 0) {
-        return (
-            <div className="text-center py-8 text-gray-600">
-                <p>No stock movements yet</p>
-            </div>
-        );
-    }
-
     return (
         <div className="overflow-x-auto">
-            <table className="w-full">
-                <thead className="bg-gray-100 border-b-2 border-gray-300">
-                    <tr>
-                        <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Stock Item</th>
-                        <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Type</th>
-                        <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">Quantity</th>
-                        <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Date</th>
-                        <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Remarks</th>
+            <table className="w-full text-left border-collapse">
+                <thead>
+                    <tr className="bg-white/[0.03] border-b border-border-color">
+                        <th className="px-4 py-2 text-[9px] font-black text-text-secondary uppercase tracking-widest">Time</th>
+                        <th className="px-4 py-2 text-[9px] font-black text-text-secondary uppercase tracking-widest">Description</th>
+                        <th className="px-4 py-2 text-[9px] font-black text-text-secondary uppercase tracking-widest text-right">Qty</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {history.map((transaction, index) => (
-                        <tr key={transaction._id || index} className="border-b border-gray-200 hover:bg-gray-50">
-                            <td className="px-4 py-3 text-sm font-medium text-gray-800">
-                                {transaction.stockId?.name || 'Unknown'}
+                <tbody className="divide-y divide-border-color">
+                    {history.map((item) => (
+                        <tr key={item._id} className="group hover:bg-white/[0.02] transition-colors">
+                            <td className="px-4 py-2 text-[10px] font-bold text-text-secondary font-mono">
+                                {formatDate(item.date)}
                             </td>
-                            <td className="px-4 py-3 text-sm">
-                                <span
-                                    className={`px-3 py-1 rounded-full text-xs font-semibold text-white ${transaction.type === 'add'
-                                        ? 'bg-green-500'
-                                        : 'bg-red-500'
-                                        }`}
-                                >
-                                    {transaction.type === 'add' ? '+ Added' : '- Removed'}
-                                </span>
+                            <td className="px-4 py-2">
+                                <span className="text-[11px] font-black text-text-primary mr-2">{item.stockId?.name}</span>
+                                <span className="text-[9px] text-text-secondary italic truncate max-w-[150px] inline-block">{item.remarks}</span>
                             </td>
-                            <td className="px-4 py-3 text-sm text-right font-semibold text-gray-800">
-                                {transaction.quantity} {transaction.stockId?.unit || ''}
-                            </td>
-                            <td className="px-4 py-3 text-sm text-gray-600">
-                                {formatDate(transaction.date)}
-                            </td>
-                            <td className="px-4 py-3 text-sm text-gray-600">
-                                {transaction.remarks || '-'}
+                            <td className="px-4 py-2 text-right">
+                                <div className="flex items-center justify-end gap-1.5">
+                                    <span className={`text-[11px] font-black tabular-nums ${item.type === 'add' ? 'text-emerald-600' : 'text-red-500'}`}>
+                                        {item.type === 'add' ? '+' : '-'}{item.quantity}
+                                    </span>
+                                    <span className="text-[8px] text-text-secondary font-black uppercase tracking-tighter">{item.stockId?.unit}</span>
+                                </div>
                             </td>
                         </tr>
                     ))}
+                    {history.length === 0 && (
+                        <tr>
+                            <td colSpan="3" className="py-10 text-center text-text-secondary font-medium italic text-[10px]">
+                                No movement history found.
+                            </td>
+                        </tr>
+                    )}
                 </tbody>
             </table>
         </div>

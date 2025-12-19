@@ -1,62 +1,71 @@
 'use client';
 
 export default function StockCard({ stock, onAddClick, onRemoveClick }) {
-    const getStatusColor = (quantity) => {
-        if (quantity === 0) return 'bg-red-100 border-red-200';
-        if (quantity < 100) return 'bg-yellow-100 border-yellow-200';
-        return 'bg-green-100 border-green-200';
+    const getStatusStyles = (quantity) => {
+        if (quantity === 0) return 'from-red-500/10 to-orange-500/5 border-red-500/20 text-red-500';
+        if (quantity < 100) return 'from-amber-500/10 to-yellow-500/5 border-amber-500/20 text-amber-500';
+        return 'from-emerald-500/10 to-teal-500/5 border-emerald-500/20 text-emerald-500';
     };
 
     const getStatusText = (quantity) => {
-        if (quantity === 0) return 'Out of Stock';
-        if (quantity < 100) return 'Low Stock';
-        return 'In Stock';
+        if (quantity === 0) return 'Empty';
+        if (quantity < 100) return 'Low';
+        return 'Healthy';
     };
 
-    const lastUpdated = new Date(stock.lastUpdated).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-    });
+    const lastUpdated = new Date(stock.lastUpdated);
 
     return (
-        <div className={`rounded-lg shadow-lg p-6 border-2 ${getStatusColor(stock.quantity)}`}>
-            <div className="flex justify-between items-start mb-4">
+        <div className={`glass glass-hover rounded-2xl p-3 flex flex-col h-full animate-fade-in border-t border-white/5 shadow-lg overflow-hidden relative group`}>
+            {/* Background Gradient Glow */}
+            <div className={`absolute -top-10 -right-10 w-20 h-20 rounded-full blur-[40px] opacity-10 transition-all duration-500 group-hover:scale-150 ${stock.quantity === 0 ? 'bg-red-500' : stock.quantity < 100 ? 'bg-amber-500' : 'bg-emerald-500'
+                }`}></div>
+
+            <div className="flex justify-between items-start mb-3 relative z-10">
                 <div>
-                    <h3 className="text-xl font-bold text-gray-800">{stock.name}</h3>
-                    <p className="text-sm text-gray-600">{stock.unit}</p>
+                    <h3 className="text-sm font-black text-text-primary tracking-tight leading-none mb-1">{stock.name}</h3>
+                    <p className="text-[9px] font-bold text-text-secondary uppercase tracking-widest">{stock.unit}</p>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${stock.quantity === 0 ? 'bg-red-500 text-white' : stock.quantity < 100 ? 'bg-yellow-500 text-white' : 'bg-green-500 text-white'}`}>
+                <div className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider border bg-gradient-to-br ${getStatusStyles(stock.quantity)}`}>
                     {getStatusText(stock.quantity)}
+                </div>
+            </div>
+
+            <div className="flex-1 flex flex-col justify-center items-center py-2 relative z-10">
+                <span className="text-3xl font-black text-text-primary tabular-nums tracking-tighter">
+                    {stock.quantity}
                 </span>
-            </div>
-
-            <div className="mb-4 p-4 bg-white bg-opacity-50 rounded-lg">
-                <p className="text-3xl font-bold text-gray-800">{stock.quantity}</p>
-                <p className="text-sm text-gray-600 mt-2">Last updated: {lastUpdated}</p>
-            </div>
-
-            {stock.notes && (
-                <p className="text-sm text-gray-600 mb-4">
-                    <span className="font-semibold">Notes:</span> {stock.notes}
+                <p className="text-[8px] text-text-secondary font-bold uppercase tracking-widest text-center mt-1">
+                    Inventory
                 </p>
-            )}
+            </div>
 
-            <div className="flex gap-2">
-                <button
-                    onClick={onAddClick}
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded transition duration-200"
-                >
-                    + Add
-                </button>
-                <button
-                    onClick={onRemoveClick}
-                    className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded transition duration-200"
-                >
-                    - Remove
-                </button>
+            <div className="mt-2 space-y-2 relative z-10">
+                <div className="flex gap-1.5">
+                    <button
+                        onClick={onAddClick}
+                        className="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-1.5 rounded-lg transition-all duration-200 text-[10px] uppercase tracking-wider shadow-sm"
+                    >
+                        + Add
+                    </button>
+                    <button
+                        onClick={onRemoveClick}
+                        className="flex-1 bg-white/5 hover:bg-red-500/10 border border-border-color hover:border-red-500/30 text-text-secondary hover:text-red-500 font-bold py-1.5 rounded-lg transition-all duration-200 text-[10px] uppercase tracking-wider"
+                    >
+                        - Remove
+                    </button>
+                </div>
+
+                <div className="pt-2 border-t border-border-color flex justify-between items-center opacity-70">
+                    <p className="text-[8px] text-text-secondary italic">
+                        {lastUpdated.toLocaleDateString()} {lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </p>
+                    {stock.notes && (
+                        <span className="text-[8px] text-text-secondary truncate max-w-[50px]" title={stock.notes}>
+                            📝
+                        </span>
+                    )}
+                </div>
             </div>
         </div>
     );

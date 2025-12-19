@@ -37,4 +37,28 @@ export const stock = {
         api.get(`/stock/history${stockId ? `?stockId=${stockId}` : ''}`),
 };
 
+// Account APIs
+export const accounts = {
+    getTransactions: () =>
+        api.get('/accounts'),
+    create: (data) =>
+        api.post('/accounts', data),
+    getSummary: () =>
+        api.get('/accounts/summary'),
+    delete: (id) =>
+        api.delete(`/accounts/${id}`),
+};
+
+// Todo APIs
+export const todos = {
+    getAll: () =>
+        api.get('/todos'),
+    create: (task, expectedCompletionDate) =>
+        api.post('/todos', { task, expectedCompletionDate }),
+    update: (id, data) =>
+        api.put(`/todos/${id}`, data),
+    delete: (id) =>
+        api.delete(`/todos/${id}`),
+};
+
 export default api;
