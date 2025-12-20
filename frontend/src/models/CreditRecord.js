@@ -15,8 +15,7 @@ const CreditRecordSchema = new mongoose.Schema({
         default: 0
     },
     remainingAmount: {
-        type: Number,
-        required: true
+        type: Number
     },
     status: {
         type: String,
@@ -40,8 +39,8 @@ const CreditRecordSchema = new mongoose.Schema({
     }
 });
 
-// Auto-calculate remaining amount before saving
-CreditRecordSchema.pre('save', function (next) {
+// Auto-calculate remaining amount before validation
+CreditRecordSchema.pre('validate', function (next) {
     this.remainingAmount = this.totalAmount - this.amountPaid;
     if (this.remainingAmount <= 0) {
         this.status = 'completed';

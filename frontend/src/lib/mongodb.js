@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 const MONGODB_URI = process.env.MONGO_URI;
 
 if (!MONGODB_URI) {
+    console.error('MONGO_URI is missing. Current process.env keys:', Object.keys(process.env).filter(k => k.includes('MONGO') || k.includes('URL')));
     throw new Error('Please define the MONGO_URI environment variable inside .env.local');
 }
 
