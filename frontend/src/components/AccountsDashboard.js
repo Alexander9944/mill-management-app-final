@@ -7,6 +7,9 @@ import SummaryCards from './SummaryCards';
 import AddTransactionModal from './AddTransactionModal';
 import MonthlyReportChart from './MonthlyReportChart';
 import TodoList from './TodoList';
+import CreditTable from './CreditTable';
+import AddCreditModal from './AddCreditModal';
+import { credits } from '@/lib/api';
 
 const CREDIT_CATEGORIES = ['White Oil', 'Second Quality Oil', 'Lamp Oil', 'Punnaku'];
 const DEBIT_CATEGORIES = [
@@ -23,11 +26,14 @@ const DEBIT_CATEGORIES = [
 
 export default function AccountsDashboard() {
     const [transactions, setTransactions] = useState([]);
-    const [summary, setSummary] = useState({ credit: 0, debit: 0, balance: 0 });
+    const [summary, setSummary] = useState({ credit: 0, debit: 0, balance: 0, pendingCollection: 0 });
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const [showCreditModal, setShowCreditModal] = useState(false);
     const [modalType, setModalType] = useState('credit');
     const [editingTransaction, setEditingTransaction] = useState(null);
+    const [creditRecords, setCreditRecords] = useState([]);
+    const [editingCredit, setEditingCredit] = useState(null);
 
     useEffect(() => {
         fetchData();
@@ -35,12 +41,18 @@ export default function AccountsDashboard() {
 
     const fetchData = async () => {
         try {
-            const [transRes, summaryRes] = await Promise.all([
+            const [transRes, summaryRes, creditRes] = await Promise.all([
                 accounts.getTransactions(),
-                accounts.getSummary()
+                accounts.getSummary(),
+                credits.getAll()
             ]);
+
+            const pendingTotal = creditRes.data.reduce((acc, curr) =>
+                curr.status === 'pending' ? acc + curr.remainingAmount : acc, 0);
+
             setTransactions(transRes.data);
-            setSummary(summaryRes.data);
+            setSummary({ ...summaryRes.data, pendingCollection: pendingTotal });
+            setCreditRecords(creditRes.data);
         } catch (err) {
             console.error('Failed to fetch account data:', err);
         } finally {
@@ -76,6 +88,40 @@ export default function AccountsDashboard() {
             fetchData();
         } catch (err) {
             alert('Failed to delete transaction');
+        }
+    };
+
+    const handleCreditSubmit = async (data, id) => {
+        try {
+            if (id) {
+                await credits.update(id, data);
+            } else {
+                await credits.create(data);
+            }
+            fetchData();
+            setShowCreditModal(false);
+            setEditingCredit(null);
+        } catch (err) {
+            alert(err.response?.data?.msg || 'Credit operation failed');
+        }
+    };
+
+    const handleCreditDelete = async (id) => {
+        if (!confirm('Delete this credit record?')) return;
+        try {
+            await credits.delete(id);
+            fetchData();
+        } catch (err) {
+            alert('Failed to delete record');
+        }
+    };
+
+    const handleCreditStatusToggle = async (id, status) => {
+        try {
+            await credits.update(id, { status });
+            fetchData();
+        } catch (err) {
+            alert('Failed to update status');
         }
     };
 
@@ -150,9 +196,34 @@ export default function AccountsDashboard() {
                 </div>
 
                 {/* Right Side: Todo List Area */}
-                <div className="lg:col-span-1 animate-fade-in">
+                <div className="lg:col-span-1 animate-fade-in space-y-8">
+                    <button
+                        onClick={() => { setEditingCredit(null); setShowCreditModal(true); }}
+                        className="w-full glass p-6 rounded-2xl border-2 border-amber-500/30 hover:bg-amber-500/10 transition-all flex flex-col items-center gap-3 group shadow-xl"
+                    >
+                        <span className="text-4xl group-hover:scale-110 transition-transform">📝</span>
+                        <div className="text-center">
+                            <span className="block text-amber-600 text-xs font-black uppercase tracking-widest">Shop Credit</span>
+                            <span className="block text-[10px] text-text-secondary font-bold">Track Pending Payments</span>
+                        </div>
+                    </button>
+
                     <TodoList />
                 </div>
+            </div>
+
+            {/* Credit Records Section */}
+            <div className="mt-12 animate-fade-in">
+                <div className="flex items-center gap-3 mb-6">
+                    <h2 className="text-2xl font-black text-text-primary">Shop Payment <span className="text-amber-500">Tracker</span></h2>
+                    <div className="h-[2px] flex-1 bg-gradient-to-r from-amber-500/50 to-transparent"></div>
+                </div>
+                <CreditTable
+                    records={creditRecords}
+                    onEdit={(record) => { setEditingCredit(record); setShowCreditModal(true); }}
+                    onDelete={handleCreditDelete}
+                    onStatusToggle={handleCreditStatusToggle}
+                />
             </div>
 
             {showModal && (
@@ -162,6 +233,15 @@ export default function AccountsDashboard() {
                     onClose={() => { setShowModal(false); setEditingTransaction(null); }}
                     onSubmit={handleTransactionSubmit}
                     initialData={editingTransaction}
+                />
+            )}
+
+            {showCreditModal && (
+                <AddCreditModal
+                    isOpen={showCreditModal}
+                    onClose={() => { setShowCreditModal(false); setEditingCredit(null); }}
+                    onSubmit={handleCreditSubmit}
+                    initialData={editingCredit}
                 />
             )}
         </div>

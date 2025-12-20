@@ -67,4 +67,16 @@ export const todos = {
         api.delete(`/todos/${id}`),
 };
 
+// Credit APIs (Pending Payments)
+export const credits = {
+    getAll: () =>
+        api.get('/credits'),
+    create: (data) =>
+        api.post('/credits', data),
+    update: (id, data) =>
+        api.put(`/credits/${id}`, data),
+    delete: (id) =>
+        api.delete(`/credits/${id}`),
+};
+
 export default api;
