@@ -2,47 +2,39 @@
 
 :root {
   /* Default: Dark Theme */
-  --background: #0b0f1a;
-  --foreground: #ffffff;
-  --text-primary: #ffffff;
-  --text-secondary: #cbd5e1;
+  --color-background: #0b0f1a;
+  --color-foreground: #ffffff;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #cbd5e1;
   --card-bg: rgba(15, 23, 42, 0.9);
   --accent-primary: #8b5cf6;
   --accent-secondary: #ec4899;
-  --border-color: rgba(255, 255, 255, 0.1);
-  --glass-bg: rgba(15, 23, 42, 0.95);
-  --input-bg: rgba(255, 255, 255, 0.1);
-  --input-text: #ffffff;
-}
-
-[data-theme='light'] {
-  --background: #ffffff;
-  --foreground: #000000;
-  --text-primary: #000000;
-  --text-secondary: #1e293b;
-  --card-bg: rgba(255, 255, 255, 1);
-  --accent-primary: #4f46e5;
-  --accent-secondary: #be185d;
-  --border-color: rgba(0, 0, 0, 0.08);
-  --glass-bg: #ffffff;
-  --input-bg: #f1f5f9;
-  --input-text: #000000;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-text-primary: var(--text-primary);
-  --color-text-secondary: var(--text-secondary);
-  --color-input-bg: var(--input-bg);
-  --color-input-text: var(--input-text);
+  --color-border-color: rgba(255, 255, 255, 0.1);
+  --color-glass-bg: rgba(15, 23, 42, 0.95);
+  --color-input-bg: rgba(255, 255, 255, 0.1);
+  --color-input-text: #ffffff;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
+[data-theme='light'] {
+  --color-background: #ffffff;
+  --color-foreground: #000000;
+  --color-text-primary: #000000;
+  --color-text-secondary: #1e293b;
+  --card-bg: rgba(255, 255, 255, 1);
+  --accent-primary: #4f46e5;
+  --accent-secondary: #be185d;
+  --color-border-color: rgba(0, 0, 0, 0.08);
+  --color-glass-bg: #ffffff;
+  --color-input-bg: #f1f5f9;
+  --color-input-text: #000000;
+}
+
+
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--color-background);
+  color: var(--color-foreground);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-weight: 800;
   /* Global Bold */
@@ -92,9 +84,9 @@ body::before {
 }
 
 .glass {
-  background: var(--glass-bg);
+  background: var(--color-glass-bg);
   backdrop-filter: blur(12px);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--color-border-color);
   /* Thinner border for cleaner look */
   transition: all 0.2s ease;
 }
@@ -143,14 +135,14 @@ body::before {
 input,
 select,
 textarea {
-  color: var(--input-text) !important;
-  background-color: var(--input-bg) !important;
+  color: var(--color-input-text) !important;
+  background-color: var(--color-input-bg) !important;
   font-weight: 800 !important;
-  border: 1px solid var(--border-color) !important;
+  border: 1px solid var(--color-border-color) !important;
 }
 
 input::placeholder {
-  color: var(--text-secondary) !important;
+  color: var(--color-text-secondary) !important;
   opacity: 0.8;
 }
 
