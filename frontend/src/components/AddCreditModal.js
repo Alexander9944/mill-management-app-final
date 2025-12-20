@@ -35,7 +35,12 @@ export default function AddCreditModal({ isOpen, onClose, onSubmit, initialData 
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSubmit(formData, initialData?._id);
+        const submissionData = {
+            ...formData,
+            totalAmount: Number(formData.totalAmount),
+            amountPaid: Number(formData.amountPaid)
+        };
+        onSubmit(submissionData, initialData?._id);
     };
 
     return (

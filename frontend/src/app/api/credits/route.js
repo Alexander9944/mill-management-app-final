@@ -36,7 +36,7 @@ export async function POST(request) {
         await newRecord.save();
         return NextResponse.json(newRecord);
     } catch (err) {
-        console.error(err.message);
-        return NextResponse.json({ msg: 'Server error' }, { status: 500 });
+        console.error('Credits POST Error:', err);
+        return NextResponse.json({ msg: 'Server error', error: err.message }, { status: 500 });
     }
 }
