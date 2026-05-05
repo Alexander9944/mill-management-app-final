@@ -52,8 +52,7 @@ CreditRecordSchema.pre('validate', function () {
     } else {
         this.status = 'pending';
     }
-    this.updatedAt = Date.now();
+    this.updatedAt = new Date();
 });
 
-const CreditRecord = mongoose.models.CreditRecord || mongoose.model('CreditRecord', CreditRecordSchema);
-export default CreditRecord;
+export default mongoose.models.CreditRecord || mongoose.model('CreditRecord', CreditRecordSchema);

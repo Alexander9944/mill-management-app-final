@@ -34,8 +34,8 @@ export async function POST(request) {
 
         const newRecord = new CreditRecord({
             shopName,
-            totalAmount,
-            amountPaid,
+            totalAmount: Number(totalAmount) || 0,
+            amountPaid: Number(amountPaid) || 0,
             notes,
             dueDate
         });
