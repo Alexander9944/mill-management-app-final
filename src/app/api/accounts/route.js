@@ -25,6 +25,16 @@ export async function POST(request) {
 
         const { type, category, quantity, pricePerUnit, amount, remarks, date } = await request.json();
 
+        if (amount !== undefined && Number(amount) < 0) {
+            return NextResponse.json({ msg: 'Amount cannot be negative' }, { status: 400 });
+        }
+        if (quantity !== undefined && quantity !== null && Number(quantity) < 0) {
+            return NextResponse.json({ msg: 'Quantity cannot be negative' }, { status: 400 });
+        }
+        if (pricePerUnit !== undefined && pricePerUnit !== null && Number(pricePerUnit) < 0) {
+            return NextResponse.json({ msg: 'Price per unit cannot be negative' }, { status: 400 });
+        }
+
         const newTransaction = new AccountTransaction({
             type,
             category,

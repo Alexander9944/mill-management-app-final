@@ -12,6 +12,16 @@ export async function PUT(request, { params }) {
         const { id } = await params;
         const data = await request.json();
 
+        if (data.amount !== undefined && Number(data.amount) < 0) {
+            return NextResponse.json({ msg: 'Amount cannot be negative' }, { status: 400 });
+        }
+        if (data.quantity !== undefined && data.quantity !== null && Number(data.quantity) < 0) {
+            return NextResponse.json({ msg: 'Quantity cannot be negative' }, { status: 400 });
+        }
+        if (data.pricePerUnit !== undefined && data.pricePerUnit !== null && Number(data.pricePerUnit) < 0) {
+            return NextResponse.json({ msg: 'Price per unit cannot be negative' }, { status: 400 });
+        }
+
         let transaction = await AccountTransaction.findById(id);
         if (!transaction) return NextResponse.json({ msg: 'Transaction not found' }, { status: 404 });
 

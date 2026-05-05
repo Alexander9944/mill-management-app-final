@@ -8,11 +8,13 @@ const CreditRecordSchema = new mongoose.Schema({
     },
     totalAmount: {
         type: Number,
-        required: true
+        required: true,
+        min: 0
     },
     amountPaid: {
         type: Number,
-        default: 0
+        default: 0,
+        min: 0
     },
     remainingAmount: {
         type: Number

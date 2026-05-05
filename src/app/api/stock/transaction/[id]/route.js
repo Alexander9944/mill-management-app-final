@@ -21,6 +21,11 @@ export async function PUT(request, { params }) {
 
         const oldQty = transaction.quantity;
         const newQty = Number(quantity);
+
+        if (isNaN(newQty) || newQty <= 0) {
+            return NextResponse.json({ msg: 'Quantity must be a positive number' }, { status: 400 });
+        }
+
         const diff = newQty - oldQty;
 
         if (transaction.type === 'add') {

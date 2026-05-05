@@ -26,6 +26,13 @@ export async function POST(request) {
         const body = await request.json();
         const { shopName, totalAmount, amountPaid, notes, dueDate } = body;
 
+        if (Number(totalAmount) < 0 || Number(amountPaid) < 0) {
+            return NextResponse.json({ msg: 'Amounts cannot be negative' }, { status: 400 });
+        }
+        if (Number(amountPaid) > Number(totalAmount)) {
+            return NextResponse.json({ msg: 'Amount paid cannot exceed total amount' }, { status: 400 });
+        }
+
         const newRecord = new CreditRecord({
             shopName,
             totalAmount: Number(totalAmount) || 0,
