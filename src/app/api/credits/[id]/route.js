@@ -26,8 +26,16 @@ export async function PUT(request, { params }) {
         await record.save();
         return NextResponse.json(record);
     } catch (err) {
-        console.error(err.message);
-        return NextResponse.json({ msg: 'Server error' }, { status: 500 });
+        console.error('Credits PUT Error Details:', {
+            message: err.message,
+            stack: err.stack,
+            error: err
+        });
+        return NextResponse.json({ 
+            msg: 'Server error', 
+            error: err.message,
+            stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+        }, { status: 500 });
     }
 }
 
@@ -44,7 +52,15 @@ export async function DELETE(request, { params }) {
         await record.deleteOne();
         return NextResponse.json({ msg: 'Record removed' });
     } catch (err) {
-        console.error(err.message);
-        return NextResponse.json({ msg: 'Server error' }, { status: 500 });
+        console.error('Credits DELETE Error Details:', {
+            message: err.message,
+            stack: err.stack,
+            error: err
+        });
+        return NextResponse.json({ 
+            msg: 'Server error', 
+            error: err.message,
+            stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+        }, { status: 500 });
     }
 }
