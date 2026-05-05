@@ -17,8 +17,8 @@ export async function PUT(request, { params }) {
 
         // Update fields
         if (data.shopName !== undefined) record.shopName = data.shopName;
-        if (data.totalAmount !== undefined) record.totalAmount = data.totalAmount;
-        if (data.amountPaid !== undefined) record.amountPaid = data.amountPaid;
+        if (data.totalAmount !== undefined) record.totalAmount = Number(data.totalAmount);
+        if (data.amountPaid !== undefined) record.amountPaid = Number(data.amountPaid);
         if (data.notes !== undefined) record.notes = data.notes;
         if (data.dueDate !== undefined) record.dueDate = data.dueDate;
         if (data.status !== undefined) record.status = data.status;
