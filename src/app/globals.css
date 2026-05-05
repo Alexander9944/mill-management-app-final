@@ -15,7 +15,7 @@
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-  
+
   --animate-fade-in: fadeIn 0.4s ease-out forwards;
 }
 
@@ -196,4 +196,17 @@ table,
 th,
 td {
   font-weight: 800 !important;
+}
+
+/* Remove number input spinners */
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
 }

@@ -88,13 +88,6 @@ export default function LoginPage() {
                             {loading ? 'Decrypting...' : 'Establish Connection'}
                         </button>
                     </form>
-
-                    <div className="mt-8 pt-6 border-t border-border-color">
-                        <div className="flex justify-around text-[9px] font-bold text-text-secondary">
-                            <p>USER: <span className="text-violet-500">admin</span></p>
-                            <p>PASS: <span className="text-pink-500">admin123</span></p>
-                        </div>
-                    </div>
                 </div>
 
                 <p className="text-center text-text-secondary text-[8px] font-black uppercase tracking-[0.2em] mt-6 opacity-30">
