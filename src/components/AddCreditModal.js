@@ -35,10 +35,23 @@ export default function AddCreditModal({ isOpen, onClose, onSubmit, initialData 
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        const totalAmount = Number(formData.totalAmount);
+        const amountPaid = Number(formData.amountPaid);
+
+        if (totalAmount < 0 || amountPaid < 0) {
+            alert('Amounts cannot be negative');
+            return;
+        }
+
+        if (amountPaid > totalAmount) {
+            alert('Amount paid cannot exceed total amount');
+            return;
+        }
+
         const submissionData = {
             ...formData,
-            totalAmount: Number(formData.totalAmount),
-            amountPaid: Number(formData.amountPaid)
+            totalAmount,
+            amountPaid
         };
         onSubmit(submissionData, initialData?._id);
     };
@@ -76,6 +89,8 @@ export default function AddCreditModal({ isOpen, onClose, onSubmit, initialData 
                                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-text-primary focus:border-amber-500 outline-none transition-all font-black text-sm"
                                 value={formData.totalAmount}
                                 onChange={(e) => setFormData({ ...formData, totalAmount: e.target.value })}
+                                min="0"
+                                step="any"
                             />
                         </div>
                         <div>
@@ -87,6 +102,8 @@ export default function AddCreditModal({ isOpen, onClose, onSubmit, initialData 
                                 className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-text-primary focus:border-amber-500 outline-none transition-all font-black text-sm"
                                 value={formData.amountPaid}
                                 onChange={(e) => setFormData({ ...formData, amountPaid: e.target.value })}
+                                min="0"
+                                step="any"
                             />
                         </div>
                     </div>

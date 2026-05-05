@@ -12,15 +12,18 @@ const AccountTransactionSchema = new mongoose.Schema({
     },
     quantity: {
         type: Number,
-        default: null
+        default: null,
+        min: 0
     },
     pricePerUnit: {
         type: Number,
-        default: null
+        default: null,
+        min: 0
     },
     amount: {
         type: Number,
-        required: true
+        required: true,
+        min: 0
     },
     date: {
         type: Date,

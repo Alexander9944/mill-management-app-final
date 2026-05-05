@@ -8,11 +8,13 @@ const CreditRecordSchema = new mongoose.Schema({
     },
     totalAmount: {
         type: Number,
-        required: true
+        required: true,
+        min: 0
     },
     amountPaid: {
         type: Number,
-        default: 0
+        default: 0,
+        min: 0
     },
     remainingAmount: {
         type: Number
@@ -40,7 +42,7 @@ const CreditRecordSchema = new mongoose.Schema({
 });
 
 // Auto-calculate remaining amount before validation
-CreditRecordSchema.pre('validate', function (next) {
+CreditRecordSchema.pre('validate', function () {
     const total = Number(this.totalAmount) || 0;
     const paid = Number(this.amountPaid) || 0;
     this.remainingAmount = total - paid;
@@ -51,7 +53,6 @@ CreditRecordSchema.pre('validate', function (next) {
         this.status = 'pending';
     }
     this.updatedAt = Date.now();
-    next();
 });
 
 const CreditRecord = mongoose.models.CreditRecord || mongoose.model('CreditRecord', CreditRecordSchema);

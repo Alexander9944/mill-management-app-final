@@ -13,7 +13,8 @@ const StockTransactionSchema = new mongoose.Schema({
     },
     quantity: {
         type: Number,
-        required: true
+        required: true,
+        min: 0
     },
     date: {
         type: Date,

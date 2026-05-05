@@ -12,6 +12,13 @@ export async function PUT(request, { params }) {
         const { id } = await params;
         const data = await request.json();
 
+        if (data.totalAmount !== undefined && Number(data.totalAmount) < 0) {
+            return NextResponse.json({ msg: 'Total amount cannot be negative' }, { status: 400 });
+        }
+        if (data.amountPaid !== undefined && Number(data.amountPaid) < 0) {
+            return NextResponse.json({ msg: 'Amount paid cannot be negative' }, { status: 400 });
+        }
+
         let record = await CreditRecord.findById(id);
         if (!record) return NextResponse.json({ msg: 'Record not found' }, { status: 404 });
 
@@ -22,6 +29,10 @@ export async function PUT(request, { params }) {
         if (data.notes !== undefined) record.notes = data.notes;
         if (data.dueDate !== undefined) record.dueDate = data.dueDate;
         if (data.status !== undefined) record.status = data.status;
+
+        if (record.amountPaid > record.totalAmount) {
+            return NextResponse.json({ msg: 'Amount paid cannot exceed total amount' }, { status: 400 });
+        }
 
         await record.save();
         return NextResponse.json(record);

@@ -38,6 +38,8 @@ export default function AddStockModal({ stock, onClose, onSubmit, isEdit = false
                             className="w-full bg-input-bg border border-border-color rounded-xl px-4 py-3 text-input-text text-lg font-black focus:ring-1 focus:ring-violet-500 outline-none transition-all"
                             placeholder="0"
                             required
+                            min="0"
+                            step="any"
                             autoFocus
                         />
                     </div>

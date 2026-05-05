@@ -28,12 +28,18 @@ export default function AddTransactionModal({ type, categories, onClose, onSubmi
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        const amount = Number(formData.amount);
+        if (amount < 0) {
+            alert('Amount cannot be negative');
+            return;
+        }
+
         onSubmit({
             ...formData,
             type,
             quantity: formData.quantity ? Number(formData.quantity) : null,
             pricePerUnit: formData.pricePerUnit ? Number(formData.pricePerUnit) : null,
-            amount: Number(formData.amount)
+            amount: amount
         }, initialData?._id);
     };
 
@@ -87,6 +93,8 @@ export default function AddTransactionModal({ type, categories, onClose, onSubmi
                                     className="w-full bg-input-bg border border-border-color rounded-xl px-3 py-2 text-input-text text-xs focus:ring-1 focus:ring-violet-500 outline-none transition-all"
                                     placeholder="0"
                                     required
+                                    min="0"
+                                    step="any"
                                 />
                             </div>
                             <div>
@@ -99,6 +107,8 @@ export default function AddTransactionModal({ type, categories, onClose, onSubmi
                                     className="w-full bg-input-bg border border-border-color rounded-xl px-3 py-2 text-input-text text-xs focus:ring-1 focus:ring-violet-500 outline-none transition-all"
                                     placeholder="0.00"
                                     required
+                                    min="0"
+                                    step="any"
                                 />
                             </div>
                         </div>
@@ -115,6 +125,8 @@ export default function AddTransactionModal({ type, categories, onClose, onSubmi
                             placeholder="0.00"
                             readOnly={type === 'credit'}
                             required
+                            min="0"
+                            step="any"
                         />
                     </div>
 

@@ -17,8 +17,8 @@ export default function ProtectedLayout({ children }) {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center h-screen">
-                <div className="text-2xl font-bold text-gray-800">Loading...</div>
+            <div className="flex items-center justify-center h-screen" suppressHydrationWarning>
+                <div className="text-2xl font-bold text-gray-800" suppressHydrationWarning>Loading...</div>
             </div>
         );
     }
@@ -28,7 +28,7 @@ export default function ProtectedLayout({ children }) {
     }
 
     return (
-        <div>
+        <div suppressHydrationWarning>
             <Header />
             {children}
         </div>

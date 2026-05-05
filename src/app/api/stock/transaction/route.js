@@ -18,6 +18,10 @@ export async function POST(request) {
         }
 
         const qty = Number(quantity);
+        if (isNaN(qty) || qty <= 0) {
+            return NextResponse.json({ msg: 'Quantity must be a positive number' }, { status: 400 });
+        }
+
         if (type === 'remove' && stock.quantity < qty) {
             return NextResponse.json({ msg: 'Insufficient stock' }, { status: 400 });
         }
